@@ -1,11 +1,12 @@
-// Advent of Code 2025 - Main Entry Point
-// Run individual days with: bun run src/days/day01/index.ts
+import { Command } from "@effect/cli";
+import { BunContext, BunRuntime } from "@effect/platform-bun";
+import { Console, Effect } from "effect";
 
-import { Effect, Console } from "effect";
+const command = Command.make("aoc2025", {}, () => Console.log("Hello, world"));
 
-const program = Effect.gen(function* () {
-  yield* Console.log("🎄 Advent of Code 2025 🎄");
-  yield* Console.log("Run individual days with: bun run src/days/day<XX>/index.ts");
+const cli = Command.run(command, {
+  name: "aoc2025",
+  version: "v1.0.0",
 });
 
-Effect.runPromise(program).catch(console.error);
+cli(process.argv).pipe(Effect.provide(BunContext.layer), BunRuntime.runMain);

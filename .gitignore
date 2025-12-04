@@ -1,11 +1,6 @@
 # dependencies (bun install)
 node_modules
 
-# lockfiles - we want fresh installs
-package-lock.json
-bun.lockb
-bun.lock
-
 # output
 out
 dist

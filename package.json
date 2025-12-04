@@ -8,6 +8,7 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "day01": "bun run src/days/day01/index.ts",
+    "day01:watch": "bun --watch run src/days/day01/index.ts",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "format": "biome format --write .",

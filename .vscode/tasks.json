@@ -15,8 +15,7 @@
       "command": "bun",
       "args": ["--watch", "run", "src/days/day01/index.ts"],
       "group": "build",
-      "problemMatcher": [],
-      "isBackground": true
+      "problemMatcher": []
     },
     {
       "label": "Run Current Day",
@@ -32,8 +31,7 @@
       "command": "bun",
       "args": ["--watch", "run", "${file}"],
       "group": "build",
-      "problemMatcher": [],
-      "isBackground": true
+      "problemMatcher": []
     },
     {
       "label": "Type Check",

@@ -16,7 +16,8 @@
         },
         "typescript.tsdk": "node_modules/typescript/lib",
         "typescript.enablePromptUseWorkspaceTsdk": true,
-        "biome.enabled": true
+        "biome.enabled": true,
+        "terminal.integrated.defaultProfile.linux": "bash"
       },
       "extensions": [
         "effectful-tech.effect-vscode",
@@ -29,8 +30,19 @@
         "github.copilot-chat",
         "oven.bun-vscode"
       ]
+    },
+    "codespaces": {
+      "openFiles": [
+        "README.md",
+        "src/days/day01/index.ts"
+      ]
     }
   },
   "postCreateCommand": "bun install",
-  "remoteUser": "node"
+  "remoteUser": "node",
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "16gb"
+  }
 }

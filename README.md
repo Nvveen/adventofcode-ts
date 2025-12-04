@@ -2,22 +2,31 @@
 
 Solutions for [Advent of Code 2025](https://adventofcode.com/2025) using **Bun** and **Effect-TS**.
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Nvveen/adventofcode2025)
+
 ## Tech Stack
 
 - **Runtime**: [Bun](https://bun.sh/) - Fast JavaScript runtime
 - **Language**: TypeScript (bleeding edge)
 - **Framework**: [Effect-TS](https://effect.website/) - Functional programming library
 - **Linting/Formatting**: [Biome](https://biomejs.dev/) - Fast, modern linter and formatter
-- **Editor**: VS Code with DevContainer support
+- **Editor**: VS Code with DevContainer/Codespaces support
 
 ## Getting Started
 
 ### Prerequisites
 
 - [Bun](https://bun.sh/) installed, or
-- [VS Code](https://code.visualstudio.com/) with [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension
+- [VS Code](https://code.visualstudio.com/) with [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension, or
+- A GitHub account (for Codespaces)
 
-### Using DevContainer (Recommended)
+### Using GitHub Codespaces (Easiest)
+
+1. Click the "Open in GitHub Codespaces" badge above, or
+2. Go to the repository on GitHub and click "Code" → "Codespaces" → "Create codespace on main"
+3. Wait for the codespace to start - dependencies will be installed automatically
+
+### Using DevContainer (Local)
 
 1. Open this repository in VS Code
 2. Press `F1` and select "Dev Containers: Reopen in Container"

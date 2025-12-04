@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Day 01",
+      "type": "shell",
+      "command": "bun",
+      "args": ["run", "src/days/day01/index.ts"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Current Day",
+      "type": "shell",
+      "command": "bun",
+      "args": ["run", "${file}"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Type Check",
+      "type": "shell",
+      "command": "bun",
+      "args": ["run", "typecheck"],
+      "group": "build",
+      "problemMatcher": "$tsc"
+    }
+  ]
+}

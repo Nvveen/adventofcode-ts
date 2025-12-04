@@ -1,12 +1,23 @@
 import { Args, Command } from "@effect/cli";
 import { BunContext, BunRuntime } from "@effect/platform-bun";
-import { Console, Effect, Schema } from "effect";
+import { Effect, Schema, String } from "effect";
 
 const dayNr = Args.integer({ name: "day number" }).pipe(
   Args.withDescription("The day number to run"),
-  Args.withSchema(Schema.Number.pipe(Schema.greaterThan(3))),
+  Args.withSchema(Schema.Number.pipe(Schema.greaterThan(0), Schema.lessThanOrEqualTo(25))),
 );
-const day = Command.make("day", { dayNr }, () => Console.log("Specify a day to run"));
+const day = Command.make("day", { dayNr }, (config) =>
+  Effect.gen(function* () {
+    const srcFileName = `./days/day${String.padStart(2, "0")(config.dayNr.toString())}`;
+    yield* Effect.tryPromise(() => import(srcFileName)).pipe(
+      Effect.flatMap((module) =>
+        module.default
+          ? (module.default as Effect.Effect<void>)
+          : Effect.fail(new Error(`No default export found in module ${srcFileName}`)),
+      ),
+    );
+  }),
+);
 
 const command = Command.make("aoc2025", {}, () => Effect.fail("Please specify a subcommand")).pipe(
   Command.withSubcommands([day]),

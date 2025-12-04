@@ -1,4 +1,5 @@
 import { Args, Command } from "@effect/cli";
+import { Path } from "@effect/platform";
 import { BunContext, BunRuntime } from "@effect/platform-bun";
 import { Effect, Schema, String } from "effect";
 
@@ -8,12 +9,17 @@ const dayNr = Args.integer({ name: "day number" }).pipe(
 );
 const day = Command.make("day", { dayNr }, (config) =>
   Effect.gen(function* () {
-    const srcFileName = `./days/day${String.padStart(2, "0")(config.dayNr.toString())}`;
-    yield* Effect.tryPromise(() => import(srcFileName)).pipe(
+    const path = yield* Path.Path;
+    const scriptDir = `./days/day${String.padStart(2, "0")(config.dayNr.toString())}`;
+    // change working directory to the script directory
+    const fullPath = path.resolve(path.join(__dirname, scriptDir));
+    process.chdir(fullPath);
+    // import and run the default export
+    yield* Effect.tryPromise(() => import(scriptDir)).pipe(
       Effect.flatMap((module) =>
         module.default
           ? (module.default as Effect.Effect<void>)
-          : Effect.fail(new Error(`No default export found in module ${srcFileName}`)),
+          : Effect.fail(new Error(`No default export found in module ${scriptDir}`)),
       ),
     );
   }),

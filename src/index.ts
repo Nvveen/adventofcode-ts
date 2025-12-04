@@ -4,7 +4,7 @@ import { Console, Effect, Schema } from "effect";
 
 const dayNr = Args.integer({ name: "day number" }).pipe(
   Args.withDescription("The day number to run"),
-  Args.withSchema(Schema.Number.pipe(Schema.greaterThan(0))),
+  Args.withSchema(Schema.Number.pipe(Schema.greaterThan(3))),
 );
 const day = Command.make("day", { dayNr }, () => Console.log("Specify a day to run"));
 

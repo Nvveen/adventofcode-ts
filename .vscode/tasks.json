@@ -10,12 +10,30 @@
       "problemMatcher": []
     },
     {
+      "label": "Watch Day 01",
+      "type": "shell",
+      "command": "bun",
+      "args": ["--watch", "run", "src/days/day01/index.ts"],
+      "group": "build",
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
       "label": "Run Current Day",
       "type": "shell",
       "command": "bun",
       "args": ["run", "${file}"],
       "group": "build",
       "problemMatcher": []
+    },
+    {
+      "label": "Watch Current Day",
+      "type": "shell",
+      "command": "bun",
+      "args": ["--watch", "run", "${file}"],
+      "group": "build",
+      "problemMatcher": [],
+      "isBackground": true
     },
     {
       "label": "Type Check",

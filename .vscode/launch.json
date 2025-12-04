@@ -31,6 +31,15 @@
     {
       "type": "bun",
       "request": "launch",
+      "name": "Watch Current File",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "watchMode": true
+    },
+    {
+      "type": "bun",
+      "request": "launch",
       "name": "Debug Current File",
       "program": "${file}",
       "cwd": "${workspaceFolder}",

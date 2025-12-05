@@ -17,7 +17,7 @@
         "typescript.tsdk": "node_modules/typescript/lib",
         "typescript.enablePromptUseWorkspaceTsdk": true,
         "biome.enabled": true,
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "zsh"
       },
       "extensions": [
         "effectful-tech.effect-vscode",

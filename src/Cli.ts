@@ -1,6 +1,5 @@
 import { Args, Command } from "@effect/cli";
 import { Path } from "@effect/platform";
-import { BunContext, BunRuntime } from "@effect/platform-bun";
 import { Effect, Schema, String } from "effect";
 
 const dayNr = Args.integer({ name: "day number" }).pipe(
@@ -29,9 +28,7 @@ const command = Command.make("aoc2025", {}, () => Effect.fail("Please specify a 
   Command.withSubcommands([day]),
 );
 
-const cli = Command.run(command, {
+export const run = Command.run(command, {
   name: "aoc2025",
   version: "v1.0.0",
 });
-
-cli(process.argv).pipe(Effect.provide(BunContext.layer), BunRuntime.runMain);

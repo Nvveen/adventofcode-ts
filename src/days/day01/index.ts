@@ -27,7 +27,7 @@ export const program = Effect.gen(function* () {
 
 const main = program.pipe(
   Effect.provide(BunContext.layer),
-  Effect.flatMap((result) => Effect.log(`Total times at position 0: ${result}`)),
+  Effect.flatMap((result) => Effect.log(`Total times at position 0: \x1b[31m${result}\x1b[0m`)),
 );
 
 export default main;

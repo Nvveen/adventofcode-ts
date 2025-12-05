@@ -1,6 +1,6 @@
 import { FileSystem } from "@effect/platform";
 import { BunContext } from "@effect/platform-bun";
-import { Console, Effect, Schema } from "effect";
+import { Effect, Schema } from "effect";
 
 export const program = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -27,7 +27,7 @@ export const program = Effect.gen(function* () {
 
 const main = program.pipe(
   Effect.provide(BunContext.layer),
-  Effect.flatMap((result) => Console.log(`Total times at position 0: ${result}`)),
+  Effect.flatMap((result) => Effect.log(`Total times at position 0: ${result}`)),
 );
 
 export default main;

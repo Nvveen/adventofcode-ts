@@ -1,5 +1,14 @@
 import { BunContext, BunRuntime } from "@effect/platform-bun";
-import { Effect } from "effect";
+import { Effect, Layer, Logger, LogLevel } from "effect";
 import { run } from "./Cli";
 
-run(process.argv).pipe(Effect.provide(BunContext.layer), BunRuntime.runMain);
+const MainLayer = Layer.mergeAll(
+  BunContext.layer, //
+  Logger.pretty,
+);
+
+run(process.argv).pipe(
+  Logger.withMinimumLogLevel(LogLevel.Info),
+  Effect.provide(MainLayer),
+  BunRuntime.runMain,
+);

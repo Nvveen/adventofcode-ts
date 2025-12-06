@@ -15,10 +15,11 @@ const availableYears = await Effect.runPromise(
     const srcPath = __dirname;
     const entries = yield* fs.readDirectory(srcPath);
 
-    // Filter for 4-digit years and parse to integers
+    // Filter for 4-digit years, parse to integers, and sort
     const years = entries
       .filter((entry) => /^\d{4}$/.test(entry))
-      .map((entry) => Number.parseInt(entry, 10));
+      .map((entry) => Number.parseInt(entry, 10))
+      .sort((a, b) => a - b);
 
     return years;
   }).pipe(Effect.provide(BunContext.layer)),
@@ -73,7 +74,10 @@ const runDay = (year: number, day: number) =>
 
 const runDayWithErrorHandling = (year: number, day: number) =>
   runDay(year, day).pipe(
-    Effect.catchAll((error) => Effect.log(`Error running year ${year}, day ${day}: ${error}`)),
+    Effect.catchAll((error) => {
+      const errorMessage = error instanceof Error ? error.message : `${error}`;
+      return Effect.log(`Error running year ${year}, day ${day}: ${errorMessage}`);
+    }),
   );
 
 const run = Command.make("run", { yearNr, dayNr }, (config) =>
@@ -81,7 +85,7 @@ const run = Command.make("run", { yearNr, dayNr }, (config) =>
     // If no year provided, run all years
     if (Option.isNone(config.yearNr)) {
       yield* Effect.log("Running all years...");
-      for (const year of availableYears.sort()) {
+      for (const year of availableYears) {
         const availableDays = yield* getAvailableDaysForYear(year).pipe(
           Effect.catchAll(() => Effect.succeed([])),
         );

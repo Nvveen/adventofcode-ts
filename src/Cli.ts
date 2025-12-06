@@ -3,10 +3,27 @@ import { fileURLToPath } from "node:url";
 import { Args, Command } from "@effect/cli";
 import { FileSystem, Path } from "@effect/platform";
 import { BunContext } from "@effect/platform-bun";
-import { Effect, Option, String } from "effect";
+import { Data, Effect, Option, String } from "effect";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Custom Error classes using Effect's Data.Error
+class ModuleNotFoundError extends Data.Error<{ readonly scriptDir: string }> {}
+class YearNotFoundError extends Data.Error<{
+  readonly year: number;
+  readonly availableYears: readonly number[];
+}> {}
+class DayNotFoundError extends Data.Error<{
+  readonly year: number;
+  readonly day: number;
+  readonly availableDays: readonly number[];
+}> {}
+class DayExecutionError extends Data.Error<{
+  readonly year: number;
+  readonly day: number;
+  readonly cause: unknown;
+}> {}
 
 const availableYears = await Effect.runPromise(
   Effect.gen(function* () {
@@ -67,20 +84,22 @@ const runDay = (year: number, day: number) =>
       Effect.flatMap((module) =>
         module.default
           ? (module.default as Effect.Effect<void>)
-          : Effect.fail(new Error(`No default export found in module ${scriptDir}`)),
+          : Effect.fail(new ModuleNotFoundError({ scriptDir })),
       ),
     );
-  });
-
-const runDayWithErrorHandling = (year: number, day: number) =>
-  runDay(year, day).pipe(
+  }).pipe(
     Effect.catchAll((error) => {
-      const errorMessage = error instanceof Error ? error.message : `${error}`;
-      return Effect.log(`Error running year ${year}, day ${day}: ${errorMessage}`);
+      if (error instanceof ModuleNotFoundError) {
+        return Effect.log(
+          `Error running year ${year}, day ${day}: No default export found in module ${error.scriptDir}`,
+        );
+      }
+      const cause = error instanceof DayExecutionError ? error.cause : error;
+      return Effect.log(`Error running year ${year}, day ${day}: ${cause}`);
     }),
   );
 
-const run = Command.make("run", { yearNr, dayNr }, (config) =>
+const command = Command.make("run", { yearNr, dayNr }, (config) =>
   Effect.gen(function* () {
     // If no year provided, run all years
     if (Option.isNone(config.yearNr)) {
@@ -91,7 +110,7 @@ const run = Command.make("run", { yearNr, dayNr }, (config) =>
         );
 
         for (const day of availableDays) {
-          yield* runDayWithErrorHandling(year, day);
+          yield* runDay(year, day);
         }
       }
       return;
@@ -101,21 +120,19 @@ const run = Command.make("run", { yearNr, dayNr }, (config) =>
 
     // Validate year
     if (!availableYears.includes(year)) {
-      return yield* Effect.fail(
-        new Error(`Year ${year} not found. Available years: ${availableYears.join(", ")}`),
-      );
+      return yield* Effect.fail(new YearNotFoundError({ year, availableYears }));
     }
 
     // discover available days for the selected year
     const availableDays = yield* getAvailableDaysForYear(year).pipe(
-      Effect.catchAll(() => Effect.fail(new Error(`Year ${year} not found`))),
+      Effect.catchAll(() => Effect.fail(new YearNotFoundError({ year, availableYears }))),
     );
 
     // If no day provided, run all days for the year
     if (Option.isNone(config.dayNr)) {
       yield* Effect.log(`Running all days for year ${year}...`);
       for (const day of availableDays) {
-        yield* runDayWithErrorHandling(year, day);
+        yield* runDay(year, day);
       }
       return;
     }
@@ -124,18 +141,12 @@ const run = Command.make("run", { yearNr, dayNr }, (config) =>
 
     // validate day exists
     if (!availableDays.includes(day)) {
-      return yield* Effect.fail(
-        new Error(
-          `Day ${day} not found for year ${year}. Available days: ${availableDays.join(", ")}`,
-        ),
-      );
+      return yield* Effect.fail(new DayNotFoundError({ year, day, availableDays }));
     }
 
     yield* runDay(year, day);
   }),
 );
-
-const command = run;
 
 export const cli = Command.run(command, {
   name: "aoc",

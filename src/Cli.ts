@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { Args, Command } from "@effect/cli";
 import { FileSystem, Path } from "@effect/platform";
 import { BunContext } from "@effect/platform-bun";
-import { Effect, Schema, String } from "effect";
+import { Effect, Option, String } from "effect";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -25,49 +25,24 @@ const availableYears = await Effect.runPromise(
 );
 
 const yearNr = Args.integer({ name: "year" }).pipe(
-  Args.withDescription("The year to run"),
-  Args.withSchema(
-    Schema.Number.pipe(
-      Schema.filter((year) => availableYears.includes(year), {
-        message: () => `Year must be one of: ${availableYears.join(", ")}`,
-      }),
-    ),
-  ),
+  Args.withDescription("The year to run (optional, runs all years if not provided)"),
+  Args.optional,
 );
 
-const dayNr = Args.integer({ name: "day" }).pipe(Args.withDescription("The day number to run"));
+const dayNr = Args.integer({ name: "day" }).pipe(
+  Args.withDescription("The day number to run (optional, runs all days if not provided)"),
+  Args.optional,
+);
 
-const run = Command.make("run", { yearNr, dayNr }, (config) =>
+const runDay = (year: number, day: number) =>
   Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
-    // discover available days for the selected year
-    const yearPath = path.join(__dirname, config.yearNr.toString());
-    const dayEntries = yield* fs
-      .readDirectory(yearPath)
-      .pipe(Effect.catchAll(() => Effect.fail(new Error(`Year ${config.yearNr} not found`))));
-
-    // Filter for 2-digit days and parse to integers
-    const availableDays = dayEntries
-      .filter((entry) => /^\d{2}$/.test(entry))
-      .map((entry) => Number.parseInt(entry, 10));
-
-    const paddedDay = String.padStart(2, "0")(config.dayNr.toString());
-
-    // validate day exists
-    if (!availableDays.includes(config.dayNr)) {
-      return yield* Effect.fail(
-        new Error(
-          `Day ${config.dayNr} not found for year ${config.yearNr}. Available days: ${availableDays.join(", ")}`,
-        ),
-      );
-    }
-
-    const scriptDir = `./${config.yearNr}/${paddedDay}`;
+    const paddedDay = String.padStart(2, "0")(day.toString());
+    const scriptDir = `./${year}/${paddedDay}`;
     const fullPath = path.resolve(path.join(__dirname, scriptDir));
 
-    yield* Effect.log(`Year ${config.yearNr}, Day ${config.dayNr}`);
+    yield* Effect.log(`Year ${year}, Day ${day}`);
 
     // change working directory to the script directory
     process.chdir(fullPath);
@@ -80,12 +55,87 @@ const run = Command.make("run", { yearNr, dayNr }, (config) =>
           : Effect.fail(new Error(`No default export found in module ${scriptDir}`)),
       ),
     );
+  });
+
+const run = Command.make("run", { yearNr, dayNr }, (config) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+
+    // If no year provided, run all years
+    if (Option.isNone(config.yearNr)) {
+      yield* Effect.log("Running all years...");
+      for (const year of availableYears.sort()) {
+        const yearPath = path.join(__dirname, year.toString());
+        const dayEntries = yield* fs
+          .readDirectory(yearPath)
+          .pipe(Effect.catchAll(() => Effect.succeed([])));
+
+        const availableDays = dayEntries
+          .filter((entry) => /^\d{2}$/.test(entry))
+          .map((entry) => Number.parseInt(entry, 10))
+          .sort((a, b) => a - b);
+
+        for (const day of availableDays) {
+          yield* runDay(year, day).pipe(
+            Effect.catchAll((error) =>
+              Effect.log(`Error running year ${year}, day ${day}: ${error}`),
+            ),
+          );
+        }
+      }
+      return;
+    }
+
+    const year = config.yearNr.value;
+
+    // Validate year
+    if (!availableYears.includes(year)) {
+      return yield* Effect.fail(
+        new Error(`Year ${year} not found. Available years: ${availableYears.join(", ")}`),
+      );
+    }
+
+    // discover available days for the selected year
+    const yearPath = path.join(__dirname, year.toString());
+    const dayEntries = yield* fs
+      .readDirectory(yearPath)
+      .pipe(Effect.catchAll(() => Effect.fail(new Error(`Year ${year} not found`))));
+
+    // Filter for 2-digit days and parse to integers
+    const availableDays = dayEntries
+      .filter((entry) => /^\d{2}$/.test(entry))
+      .map((entry) => Number.parseInt(entry, 10));
+
+    // If no day provided, run all days for the year
+    if (Option.isNone(config.dayNr)) {
+      yield* Effect.log(`Running all days for year ${year}...`);
+      for (const day of availableDays.sort((a, b) => a - b)) {
+        yield* runDay(year, day).pipe(
+          Effect.catchAll((error) =>
+            Effect.log(`Error running year ${year}, day ${day}: ${error}`),
+          ),
+        );
+      }
+      return;
+    }
+
+    const day = config.dayNr.value;
+
+    // validate day exists
+    if (!availableDays.includes(day)) {
+      return yield* Effect.fail(
+        new Error(
+          `Day ${day} not found for year ${year}. Available days: ${availableDays.join(", ")}`,
+        ),
+      );
+    }
+
+    yield* runDay(year, day);
   }),
 );
 
-const command = Command.make("aoc", {}, () => Effect.fail("Please specify a command")).pipe(
-  Command.withSubcommands([run]),
-);
+const command = run;
 
 export const cli = Command.run(command, {
   name: "aoc",

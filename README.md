@@ -1,6 +1,6 @@
-# Advent of Code 2025 🎄
+# Advent of Code 🎄
 
-Solutions for [Advent of Code 2025](https://adventofcode.com/2025) using **Bun** and **Effect-TS**.
+Solutions for [Advent of Code](https://adventofcode.com/) using **Bun** and **Effect-TS**.
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Nvveen/adventofcode2025)
 
@@ -38,18 +38,18 @@ Solutions for [Advent of Code 2025](https://adventofcode.com/2025) using **Bun**
 # Install dependencies
 bun install
 
-# Run Day 1
-bun run day01
-
-# Or run directly
-bun run src/days/day01/index.ts
+# Run a specific day (e.g., 2025 day 1)
+bun run src/bin.ts run 2025 1
 ```
 
 ## Scripts
 
 ```bash
 # Run specific day
-bun run day01
+bun run src/bin.ts run <year> <day>
+
+# Example: Run 2025 day 1
+bun run src/bin.ts run 2025 1
 
 # Linting
 bun run lint        # Check for lint errors
@@ -71,10 +71,13 @@ bun run check:fix   # Fix all auto-fixable issues
 
 ```
 src/
-├── index.ts           # Main entry point
-└── days/
-    └── day01/
-        └── index.ts   # Day 1 solution
+├── bin.ts             # Main entry point
+├── Cli.ts             # CLI implementation
+└── <year>/            # Year directories (e.g., 2025/)
+    └── <day>/         # Day directories (e.g., 01/)
+        ├── index.ts   # Day solution
+        ├── index.test.ts # Tests
+        └── input.txt  # Puzzle input
 ```
 
 ## VS Code Extensions

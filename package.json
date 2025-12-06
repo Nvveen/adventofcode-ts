@@ -1,7 +1,7 @@
 {
-  "name": "adventofcode2025",
+  "name": "adventofcode",
   "version": "1.0.0",
-  "description": "Advent of Code 2025 solutions using Bun and Effect-TS",
+  "description": "Advent of Code solutions using Bun and Effect-TS",
   "module": "src/bin.ts",
   "type": "module",
   "private": true,

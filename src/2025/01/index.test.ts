@@ -20,7 +20,7 @@ const MockFileSystem = FileSystem.layerNoop({
   readFileString: () => Effect.succeed(mockInput),
 });
 
-describe("Day 01", () => {
+describe("2025 - Day 01", () => {
   test("should solve part 1", async () => {
     // Run the program with the mock filesystem
     const result = await Effect.runPromise(program.pipe(Effect.provide(MockFileSystem)));

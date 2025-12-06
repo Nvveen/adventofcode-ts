@@ -34,6 +34,20 @@ const dayNr = Args.integer({ name: "day" }).pipe(
   Args.optional,
 );
 
+const getAvailableDaysForYear = (year: number) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+
+    const yearPath = path.join(__dirname, year.toString());
+    const dayEntries = yield* fs.readDirectory(yearPath);
+
+    return dayEntries
+      .filter((entry) => /^\d{2}$/.test(entry))
+      .map((entry) => Number.parseInt(entry, 10))
+      .sort((a, b) => a - b);
+  });
+
 const runDay = (year: number, day: number) =>
   Effect.gen(function* () {
     const path = yield* Path.Path;
@@ -57,31 +71,23 @@ const runDay = (year: number, day: number) =>
     );
   });
 
+const runDayWithErrorHandling = (year: number, day: number) =>
+  runDay(year, day).pipe(
+    Effect.catchAll((error) => Effect.log(`Error running year ${year}, day ${day}: ${error}`)),
+  );
+
 const run = Command.make("run", { yearNr, dayNr }, (config) =>
   Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-
     // If no year provided, run all years
     if (Option.isNone(config.yearNr)) {
       yield* Effect.log("Running all years...");
       for (const year of availableYears.sort()) {
-        const yearPath = path.join(__dirname, year.toString());
-        const dayEntries = yield* fs
-          .readDirectory(yearPath)
-          .pipe(Effect.catchAll(() => Effect.succeed([])));
-
-        const availableDays = dayEntries
-          .filter((entry) => /^\d{2}$/.test(entry))
-          .map((entry) => Number.parseInt(entry, 10))
-          .sort((a, b) => a - b);
+        const availableDays = yield* getAvailableDaysForYear(year).pipe(
+          Effect.catchAll(() => Effect.succeed([])),
+        );
 
         for (const day of availableDays) {
-          yield* runDay(year, day).pipe(
-            Effect.catchAll((error) =>
-              Effect.log(`Error running year ${year}, day ${day}: ${error}`),
-            ),
-          );
+          yield* runDayWithErrorHandling(year, day);
         }
       }
       return;
@@ -97,25 +103,15 @@ const run = Command.make("run", { yearNr, dayNr }, (config) =>
     }
 
     // discover available days for the selected year
-    const yearPath = path.join(__dirname, year.toString());
-    const dayEntries = yield* fs
-      .readDirectory(yearPath)
-      .pipe(Effect.catchAll(() => Effect.fail(new Error(`Year ${year} not found`))));
-
-    // Filter for 2-digit days and parse to integers
-    const availableDays = dayEntries
-      .filter((entry) => /^\d{2}$/.test(entry))
-      .map((entry) => Number.parseInt(entry, 10));
+    const availableDays = yield* getAvailableDaysForYear(year).pipe(
+      Effect.catchAll(() => Effect.fail(new Error(`Year ${year} not found`))),
+    );
 
     // If no day provided, run all days for the year
     if (Option.isNone(config.dayNr)) {
       yield* Effect.log(`Running all days for year ${year}...`);
-      for (const day of availableDays.sort((a, b) => a - b)) {
-        yield* runDay(year, day).pipe(
-          Effect.catchAll((error) =>
-            Effect.log(`Error running year ${year}, day ${day}: ${error}`),
-          ),
-        );
+      for (const day of availableDays) {
+        yield* runDayWithErrorHandling(year, day);
       }
       return;
     }

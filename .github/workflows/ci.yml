@@ -44,6 +44,3 @@ jobs:
 
       - name: Install dependencies
         run: bun install
-
-      - name: Run Day 01
-        run: bun run day01

@@ -17,14 +17,13 @@
         "typescript.tsdk": "node_modules/typescript/lib",
         "typescript.enablePromptUseWorkspaceTsdk": true,
         "biome.enabled": true,
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "zsh"
       },
       "extensions": [
         "effectful-tech.effect-vscode",
         "biomejs.biome",
         "ms-vscode.vscode-typescript-next",
         "christian-kohler.path-intellisense",
-        "streetsidesoftware.code-spell-checker",
         "eamodio.gitlens",
         "github.copilot",
         "github.copilot-chat",

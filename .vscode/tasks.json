@@ -2,44 +2,34 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Run Day 01",
-      "type": "shell",
-      "command": "bun",
-      "args": ["run", "src/days/day01/index.ts"],
-      "group": "build",
-      "problemMatcher": []
-    },
-    {
-      "label": "Watch Day 01",
-      "type": "shell",
-      "command": "bun",
-      "args": ["--watch", "run", "src/days/day01/index.ts"],
-      "group": "build",
-      "problemMatcher": []
-    },
-    {
-      "label": "Run Current Day",
-      "type": "shell",
-      "command": "bun",
-      "args": ["run", "${file}"],
-      "group": "build",
-      "problemMatcher": []
-    },
-    {
-      "label": "Watch Current Day",
-      "type": "shell",
-      "command": "bun",
-      "args": ["--watch", "run", "${file}"],
-      "group": "build",
-      "problemMatcher": []
-    },
-    {
       "label": "Type Check",
       "type": "shell",
       "command": "bun",
       "args": ["run", "typecheck"],
       "group": "build",
       "problemMatcher": "$tsc"
+    },
+    {
+      "label": "Start",
+      "type": "shell",
+      "command": "bun",
+      "args": ["start", "--", "${input:dayArgs}"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Watch",
+      "type": "shell",
+      "command": "bun",
+      "args": ["watch", "--", "${input:dayArgs}"],
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "dayArgs",
+      "type": "promptString",
+      "description": "Enter day arguments (e.g., 'day 1')",
+      "default": "day 1"
     }
   ]
 }

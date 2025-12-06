@@ -39,17 +39,25 @@ Solutions for [Advent of Code](https://adventofcode.com/) using **Bun** and **Ef
 bun install
 
 # Run a specific day (e.g., 2025 day 1)
-bun run src/bin.ts run 2025 1
+bun run src/bin.ts 2025 1
 ```
 
 ## Scripts
 
 ```bash
-# Run specific day
-bun run src/bin.ts run <year> <day>
+# Run all years and all days (default)
+bun run src/bin.ts
 
-# Example: Run 2025 day 1
-bun run src/bin.ts run 2025 1
+# Run all days for a specific year
+bun run src/bin.ts <year>
+
+# Run a specific day
+bun run src/bin.ts <year> <day>
+
+# Examples:
+bun run src/bin.ts           # Run all years and days
+bun run src/bin.ts 2025      # Run all days from 2025
+bun run src/bin.ts 2025 1    # Run 2025 day 1
 
 # Linting
 bun run lint        # Check for lint errors
